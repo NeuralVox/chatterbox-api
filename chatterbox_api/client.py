@@ -3,6 +3,7 @@ from io import BytesIO
 from typing import Union, BinaryIO, Optional, Dict, Any
 import time
 import json
+import logging
 
 class ChatterboxAPIError(Exception):
     """Base class for exceptions in this module."""
@@ -14,16 +15,18 @@ class TaskFailedError(ChatterboxAPIError):
 
 
 class ChatterboxAPI:
-    def __init__(self, api_url: str, poll_interval: float = 1.0):
+    def __init__(self, api_url: str, poll_interval: float = 1.0, verbose: bool = False):
         """
         Initializes the ChatterboxAPI client.
 
         Args:
             api_url (str): The base URL of the Chatterbox API.
             poll_interval (float): Time in seconds between status checks.
+            verbose (bool): Enable verbose output.
         """
         self.api_url = api_url
         self.poll_interval = poll_interval
+        self.verbose = verbose
 
     def _lowlevel_synthesize(self, text: str, audio_prompt: Union[str, BinaryIO, bytes, None] = None, 
                            generation_params: Optional[Dict[str, Any]] = None) -> str:
@@ -128,9 +131,11 @@ class ChatterboxAPI:
             elif status['status'] == 'error':
                 raise TaskFailedError(f"Task {task_id} failed: {status.get('error', 'Unknown error')}")
             elif status['status'] == 'queued':
-                print(f"Task {task_id} is queued. Position: {status.get('queue_position', 'Unknown')}")
+                if self.verbose:
+                    print(f"Task {task_id} is queued. Position: {status.get('queue_position', 'Unknown')}")
             else:
-                print(f"Task {task_id} status: {status['status']}")
+                if self.verbose:
+                    print(f"Task {task_id} status: {status['status']}")
             time.sleep(self.poll_interval)
 
     def get_status(self, task_id: str) -> dict:
