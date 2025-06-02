@@ -10,6 +10,7 @@ import time
 import click
 import torch
 from waitress import serve
+import json
 
 app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,15 +38,30 @@ def initialize_model():
     click.echo(f"Initializing TTS model on device: {device}")
     model = ChatterboxTTS.from_pretrained(device=device)
 
-def process_task(text, audio_prompt_bytes, task_id):
+def process_task(text, audio_prompt_bytes, task_id, generation_params=None):
     try:
         task_status[task_id] = "processing"
         
+        # Set default parameters
+        default_params = {
+            'exaggeration': 0.5,
+            'cfg_weight': 0.5,
+            'temperature': 0.8
+        }
+        
+        # Merge with provided parameters
+        if generation_params:
+            default_params.update(generation_params)
+        
         if audio_prompt_bytes:
             # Use the pre-read audio bytes
-            wav = model.generate(text, audio_prompt_path=BytesIO(audio_prompt_bytes))
+            wav = model.generate(
+                text, 
+                audio_prompt_path=BytesIO(audio_prompt_bytes),
+                **default_params
+            )
         else:
-            wav = model.generate(text)
+            wav = model.generate(text, **default_params)
 
         # Convert the waveform to a byte stream
         buffer = BytesIO()
@@ -63,11 +79,13 @@ def process_task(text, audio_prompt_bytes, task_id):
 
 def worker():
     while True:
-        task_id, text, audio_prompt_bytes = task_queue.get()
-        if task_id is None:
+        task_data = task_queue.get()
+        if task_data is None:
             break
+        
+        task_id, text, audio_prompt_bytes, generation_params = task_data
         semaphore.acquire()
-        threading.Thread(target=process_task, args=(text, audio_prompt_bytes, task_id)).start()
+        threading.Thread(target=process_task, args=(text, audio_prompt_bytes, task_id, generation_params)).start()
         task_queue.task_done()
 
 @app.route('/')
@@ -79,6 +97,24 @@ def synthesize():
     text = request.form['text']
     audio_prompt_file = request.files.get('audio_prompt')
     
+    # Parse optional generation parameters from JSON
+    generation_params = {}
+    params_json = request.form.get('params')
+    if params_json:
+        try:
+            generation_params = json.loads(params_json)
+            # Validate parameter types and ranges
+            for param, value in generation_params.items():
+                if param in ['exaggeration', 'cfg_weight', 'temperature']:
+                    if not isinstance(value, (int, float)):
+                        return jsonify({'error': f'Parameter {param} must be a number'}), 400
+                    if not (0.0 <= value <= 1.0):
+                        return jsonify({'error': f'Parameter {param} must be between 0.0 and 1.0'}), 400
+                else:
+                    return jsonify({'error': f'Unknown parameter: {param}'}), 400
+        except json.JSONDecodeError:
+            return jsonify({'error': 'Invalid JSON in params field'}), 400
+    
     # Read the audio file content immediately while the request is still active
     audio_prompt_bytes = None
     if audio_prompt_file:
@@ -87,8 +123,8 @@ def synthesize():
     task_id = str(uuid.uuid4())
     task_status[task_id] = "queued"
     
-    # Add to queue with the pre-read bytes instead of the file object
-    task_queue.put((task_id, text, audio_prompt_bytes))
+    # Add to queue with the pre-read bytes and parameters
+    task_queue.put((task_id, text, audio_prompt_bytes, generation_params))
     
     # Calculate queue position
     queue_position = task_queue.qsize()
