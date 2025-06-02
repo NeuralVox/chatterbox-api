@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="chatterbox-api",
+    name="chatterbox-server",
     description="A API for ChatterboxTTS",
     version="0.1.0",
     author="mrfakename",

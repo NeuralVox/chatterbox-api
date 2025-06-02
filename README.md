@@ -1,4 +1,4 @@
-# Chatterbox API
+# Chatterbox Server
 
 A API for Chatterbox TTS.
 
@@ -10,13 +10,13 @@ This library consists of two components:
 ## Installation
 
 ```bash
-pip install chatterbox-api
+pip install chatterbox-server
 ```
 
 To install with support for the API server, run:
 
 ```bash
-pip install chatterbox-api[server]
+pip install chatterbox-server[server]
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ pip install chatterbox-api[server]
 Start the API server:
 
 ```bash
-chatterbox-api
+chatterbox-server
 ```
 
 ## Client Usage
