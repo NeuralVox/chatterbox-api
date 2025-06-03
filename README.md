@@ -53,4 +53,4 @@ BSD-3-Clause
 
 ---
 
-[NeuralVox](https://neuralvox.github.io/)
+[NeuralVox](https://neuralvox.github.io/) - [Follow on X](https://x.com/neuralvox)
