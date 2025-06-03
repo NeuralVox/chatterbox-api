@@ -19,6 +19,12 @@ To install with support for the API server, run:
 pip install chatterbox-server[server]
 ```
 
+If you are getting CUDA issues, you can try the experimental fork of Chatterbox TTS:
+
+```
+pip install "chatterbox-tts @ git+https://github.com/fakerybakery/better-chatterbox@fix-cuda-issue"
+```
+
 ## Usage
 
 Start the API server:
