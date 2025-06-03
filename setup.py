@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="chatterbox-server",
     description="A API for ChatterboxTTS",
-    version="0.1.2",
+    version="0.1.3",
     author="mrfakename",
     author_email="me@mrfake.name",
     url="https://github.com/neuralvox/chatterbox-api",
