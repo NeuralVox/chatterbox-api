@@ -15,7 +15,7 @@ class TaskFailedError(ChatterboxAPIError):
 
 
 class ChatterboxAPI:
-    def __init__(self, api_url: str, poll_interval: float = 1.0, verbose: bool = False):
+    def __init__(self, api_url: str, poll_interval: float = 1.0, verbose: bool = False, headers: Optional[Dict[str, str]] = None):
         """
         Initializes the ChatterboxAPI client.
 
@@ -23,10 +23,12 @@ class ChatterboxAPI:
             api_url (str): The base URL of the Chatterbox API.
             poll_interval (float): Time in seconds between status checks.
             verbose (bool): Enable verbose output.
+            headers (dict, optional): A dictionary of headers to include in all requests. Defaults to None.
         """
         self.api_url = api_url
         self.poll_interval = poll_interval
         self.verbose = verbose
+        self.headers = headers or {}
 
     def _lowlevel_synthesize(self, text: str, audio_prompt: Union[str, BinaryIO, bytes, None] = None, 
                            generation_params: Optional[Dict[str, Any]] = None) -> str:
@@ -62,7 +64,7 @@ class ChatterboxAPI:
             else:
                 raise ValueError("audio_prompt must be a string (path), BytesIO, or bytes")
 
-        response = requests.post(url, files=files, data=data)
+        response = requests.post(url, files=files, data=data, headers=self.headers)
         response.raise_for_status()
         return response.json()['task_id']
 
@@ -77,7 +79,7 @@ class ChatterboxAPI:
             dict: A dictionary containing the task status.
         """
         url = f"{self.api_url}/status/{task_id}"
-        response = requests.get(url)
+        response = requests.get(url, headers=self.headers)
         response.raise_for_status()
         return response.json()
 
@@ -92,7 +94,7 @@ class ChatterboxAPI:
             requests.Response: The response from the API, containing the audio data.
         """
         url = f"{self.api_url}/download/{task_id}"
-        response = requests.get(url)
+        response = requests.get(url, headers=self.headers)
         response.raise_for_status()
         return response
 

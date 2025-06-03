@@ -39,6 +39,10 @@ chatterbox-server
 from chatterbox_api import ChatterboxAPI
 
 api = ChatterboxAPI("http://localhost:5000")
+# Make sure you have a server running!
+
+# If you want to pass custom headers (e.g. for authentication if you are running behind a proxy/load balancer), you can do so like this:
+# api = ChatterboxAPI("http://localhost:5000", headers={"Authorization": "Bearer <your-token>"})
 
 response = api.synthesize(text="Hello, world!", audio_prompt="path/to/audio_prompt.wav")
 
