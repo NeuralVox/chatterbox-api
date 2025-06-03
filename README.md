@@ -53,8 +53,10 @@ with open("output.wav", "wb") as f:
 
 ## License
 
-BSD-3-Clause
+Copyright 2025 NeuralVox.
+
+Licensed under the BSD-3-Clause license.
 
 ---
 
-[NeuralVox](https://neuralvox.github.io/) - [Follow on X](https://x.com/neuralvox)
+[NeuralVox](https://neuralvox.github.io/) &bull; [@neuralvox on X](https://x.com/neuralvox)
