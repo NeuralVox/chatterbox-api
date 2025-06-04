@@ -108,8 +108,6 @@ def synthesize():
                 if param in ['exaggeration', 'cfg_weight', 'temperature']:
                     if not isinstance(value, (int, float)):
                         return jsonify({'error': f'Parameter {param} must be a number'}), 400
-                    if not (0.0 <= value <= 1.0):
-                        return jsonify({'error': f'Parameter {param} must be between 0.0 and 1.0'}), 400
                 else:
                     return jsonify({'error': f'Unknown parameter: {param}'}), 400
         except json.JSONDecodeError:
