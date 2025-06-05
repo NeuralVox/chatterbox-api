@@ -1,4 +1,4 @@
-> Join the waitlist for [NeuralVox](https://forms.gle/HA4dvRB9nz2G1s2LA) - full-cast AI audiobooks!
+> [Join the waitlist for NeuralVox](https://forms.gle/HA4dvRB9nz2G1s2LA) - full-cast AI audiobooks!
 
 # Chatterbox Server
 
